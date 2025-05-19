@@ -1,7 +1,8 @@
 import Logo from '../Logo';
 import { useEffect, useState } from 'react';
 import { useQuestionContext } from '../../context/QuestionContext';
-import {openai} from '../../openai';
+import {openai, createEmbedding, findNearestMatches } from '../../util/openaiClient';
+
 
 const blank = {
   favouriteMovie: '',
@@ -67,7 +68,11 @@ The famous film person they would love to be stranded on an island with is ${per
         input += personInput;
       }
     }
+    let query_embedding = createEmbedding(input);
+    let matches = findNearestMatches(query_embedding);
 
+    //TODO: create context to store matched movies and then navigate to the results
+    
     console.log(input);
     
   };
