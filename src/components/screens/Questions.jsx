@@ -1,6 +1,7 @@
 import Logo from '../Logo';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuestionContext } from '../../context/QuestionContext';
+import {openai} from '../../openai';
 
 const blank = {
   favouriteMovie: '',
@@ -11,7 +12,7 @@ const blank = {
 
 const Questions = () => {
   const [currentPerson, setCurrentPerson] = useState(0);
-  const [prevPerson, setPrevPerson] = useState(null);
+  const [prevPerson, setPrevPerson] = useState(0);
 
   const { initialQuestionAnswers, questionAnswers, setQuestionAnswers } =
     useQuestionContext();
@@ -36,19 +37,39 @@ const Questions = () => {
   useEffect(() => {
     const newQuestionAnswers = {
       ...questionAnswers,
-      [prevPerson]: formData,
-    };
+      [prevPerson]: formData
+    }
+    console.log('newquestionanswers', newQuestionAnswers)
+    setQuestionAnswers(newQuestionAnswers);
+    
     let newFormData = blank;
     if (currentPerson in questionAnswers) {
-      newQuestionAnswers[[currentPerson]] = blank;
       newFormData = questionAnswers[currentPerson];
     }
     setFormData(newFormData);
-    setQuestionAnswers(newQuestionAnswers);
   }, [currentPerson]);
 
-  const handleGetMovie = () => {
-    console.log('getting movie...');
+  const handleGetMovie = async () => {
+    let answers = {...questionAnswers, [initialQuestionAnswers.numPeople-1]: formData};
+
+    let input = '';
+
+    for(let key in answers) {
+      console.log('key', key=='null');
+      if(key) {
+        let personAnswer = answers[key];
+
+        let personInput = `
+Person ${Number(key)+1} likes ${personAnswer.favouriteMovie}. 
+They are in the mood for a ${personAnswer.newOrClassic} ${personAnswer.genre} movie.
+The famous film person they would love to be stranded on an island with is ${personAnswer.famousPerson}
+        `
+        input += personInput;
+      }
+    }
+
+    console.log(input);
+    
   };
 
   return (
