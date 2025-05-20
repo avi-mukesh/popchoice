@@ -23,6 +23,7 @@ const InitialQuestions = () => {
   return (
     <>
       <Logo />
+        <p className='text-center text-xl text-slate-300'>Let's recommend you some movies!</p>
       <div className="flex flex-col gap-4 items-center mt-10">
         <input
           className="bg-blue-300 text-blue-900 p-1 text-center outline-none border-none"
@@ -37,6 +38,9 @@ const InitialQuestions = () => {
           name="time"
           value={formData.time}
           onChange={handleChange}
+          step={0.1}
+          max={10}
+          min={0}
         />
         <button
           className="bg-green-300 cursor-pointer w-[100px] rounded-sm h-[40px]"

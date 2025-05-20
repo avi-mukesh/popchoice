@@ -13,7 +13,7 @@ const Results = () => {
       method: 'GET',
       headers: {
         accept: 'application/json',
-        Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzMWQyNTg4YTUxZjZlYmUyMGU4YzYyZWUyODI5ZDYwMCIsIm5iZiI6MTc0NzczMTg2OC4wNTUsInN1YiI6IjY4MmM0NTljZDVlNjc2ZWE5MjBiZGUxNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.-1zYp2RqQdBh4jUIWuEI_UkDqGanjgWzS3BfZAitmr8'
+        Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_TOKEN}`
       }
     };
     async function fetchMoviePosters() {
