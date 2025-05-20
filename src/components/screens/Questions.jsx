@@ -2,20 +2,25 @@ import Logo from '../Logo';
 import { useEffect, useState } from 'react';
 import { useQuestionContext } from '../../context/QuestionContext';
 import {openai, createEmbedding, findNearestMatches } from '../../util/openaiClient';
+import { useNavigate } from 'react-router';
 
 
 const blank = {
-  favouriteMovie: '',
-  newOrClassic: '',
-  genre: '',
-  famousPerson: '',
+  favouriteMovie: 'spiderman',
+  newOrClassic: 'new',
+  genre: 'action',
+  famousPerson: 'tom hanks',
 };
 
 const Questions = () => {
+
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
   const [currentPerson, setCurrentPerson] = useState(0);
   const [prevPerson, setPrevPerson] = useState(0);
 
-  const { initialQuestionAnswers, questionAnswers, setQuestionAnswers } =
+  const { initialQuestionAnswers, questionAnswers, setQuestionAnswers, setRecommendations } =
     useQuestionContext();
 
   const [formData, setFormData] = useState(questionAnswers[currentPerson]);
@@ -51,6 +56,7 @@ const Questions = () => {
   }, [currentPerson]);
 
   const handleGetMovie = async () => {
+    setLoading(true);
     let answers = {...questionAnswers, [initialQuestionAnswers.numPeople-1]: formData};
 
     let input = '';
@@ -81,7 +87,7 @@ The famous film person they would love to be stranded on an island with is ${per
         messages: [
           {
             role: 'system',
-            content: "You are an enthusiastic movie expert who loves recommending movies to people. You will be given two pieces of information - some context about movies and the answers from a few different people about what their movie preferences are. Your main job is to recommend between 2 and 4 movies using the provided context. For each movie, give a short reason why you recommend it gien the people preferences and the amount of time they have. Return the recommendations in the order of most to least recommended. Separate each recommendation by a new line. Do not write an introduction or a conclusion."
+            content: "You are an enthusiastic movie expert who loves recommending movies to people. You will be given two pieces of information - some context about movies and the answers from a few different people about what their movie preferences are. Your main job is to recommend between 2 and 4 movies using the provided context. For each movie, give a short reason why you recommend it gien the people preferences and the amount of time they have. Return the recommendations in the order of most to least recommended. Separate each recommendation by a new line and separate the movie title from it's recommendation by ***. Do not write an introduction or a conclusion."
           },
           // TODO: give a sample answer so it knows how to respond
           {
@@ -89,95 +95,97 @@ The famous film person they would love to be stranded on an island with is ${per
             content: userMessage
           }
         ]
-      })
-      let responseContent = res.choices[0].message.content;
-      let recommendations = responseContent.split('\n\n');
-      let movieTitles = recommendations.map(recommendations => recommendations.split('-'))
-      //TODO use api to query for movie title
+    })
 
-      console.log(responseContent.split('\n\n'));
-
-    //TODO: create context to store matched movies and then navigate to the results
-    
-    console.log(input);
-    
+    let responseContent = res.choices[0].message.content;
+    let recommendations = responseContent.split('\n\n');
+    setRecommendations(recommendations);
+    setLoading(false);
+    navigate('/results');
   };
 
   return (
     <>
       <Logo />
-      <div className="flex flex-col gap-4 items-center mt-10 max-w-[70%] mx-auto">
-        <h2 className="text-3xl text-slate-400">{currentPerson + 1}</h2>
-        <div className="flex flex-col items-start">
-          <label className="text-slate-100">
-            What's your favourite movie and why?
-          </label>
-          <input
-            className="bg-blue-300 text-blue-900 p-1 text-center outline-none border-none rounded-sm w-full"
-            name="favouriteMovie"
-            value={formData.favouriteMovie}
-            onChange={handleChange}
-          />
+      {
+        loading ? <p className='text-slate-300 text-2xl text-center'>Hold on tight!</p> :
+        <div className="flex flex-col gap-4 items-center mt-10 max-w-[70%] mx-auto">
+          <h2 className="text-3xl text-slate-400">{currentPerson + 1}</h2>
+          <div className="flex flex-col items-start">
+            <label className="text-slate-100">
+              What's your favourite movie and why?
+            </label>
+            <input
+              className="bg-blue-300 text-blue-900 p-1 text-center outline-none border-none rounded-sm w-full"
+              name="favouriteMovie"
+              value={formData.favouriteMovie}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="flex flex-col items-start">
+            <label className="text-slate-100">
+              Are you in the mood for something new or classic?
+            </label>
+            <input
+              className="bg-blue-300 text-blue-900 p-1 text-center outline-none border-none rounded-sm w-full"
+              name="newOrClassic"
+              value={formData.newOrClassic}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="flex flex-col items-start">
+            <label className="text-slate-100">
+              What genre are you in the mood for?
+            </label>
+            <input
+              className="bg-blue-300 text-blue-900 p-1 text-center outline-none border-none rounded-sm w-full"
+              name="genre"
+              value={formData.genre}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="flex flex-col items-start">
+            <label className="text-slate-100">
+              Which famous film person would you love to be stranded on an island
+              with and why?
+            </label>
+            <input
+              className="bg-blue-300 text-blue-900 p-1 text-center outline-none border-none rounded-sm w-full"
+              name="famousPerson"
+              value={formData.famousPerson}
+              onChange={handleChange}
+            />
+          </div>
+          
+          
+          <div className='flex gap-2'>
+              {initialQuestionAnswers.numPeople > 1 && currentPerson > 0 && (
+                <button
+                  className="bg-green-300 cursor-pointer w-[100px] rounded-sm h-[40px]"
+                  onClick={handlePrevPerson}
+                >
+                  Prev
+                </button>
+              )}
+              {currentPerson + 1 < initialQuestionAnswers.numPeople ? (
+                <button
+                  className="bg-green-300 cursor-pointer w-[100px] rounded-sm h-[40px]"
+                  onClick={handleNextPerson}
+                >
+                  Next
+                </button>
+              ) : (
+                <button
+                  className="bg-green-300 cursor-pointer w-[100px] rounded-sm h-[40px]"
+                  onClick={handleGetMovie}
+                >
+                  Get Movie
+                </button>
+              )}
+          </div>
+          
         </div>
-        <div className="flex flex-col items-start">
-          <label className="text-slate-100">
-            Are you in the mood for something new or classic?
-          </label>
-          <input
-            className="bg-blue-300 text-blue-900 p-1 text-center outline-none border-none rounded-sm w-full"
-            name="newOrClassic"
-            value={formData.newOrClassic}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="flex flex-col items-start">
-          <label className="text-slate-100">
-            What genre are you in the mood for?
-          </label>
-          <input
-            className="bg-blue-300 text-blue-900 p-1 text-center outline-none border-none rounded-sm w-full"
-            name="genre"
-            value={formData.genre}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="flex flex-col items-start">
-          <label className="text-slate-100">
-            Which famous film person would you love to be stranded on an island
-            with and why?
-          </label>
-          <input
-            className="bg-blue-300 text-blue-900 p-1 text-center outline-none border-none rounded-sm w-full"
-            name="famousPerson"
-            value={formData.famousPerson}
-            onChange={handleChange}
-          />
-        </div>
-
-        {currentPerson + 1 < initialQuestionAnswers.numPeople ? (
-          <button
-            className="bg-green-300 cursor-pointer w-[100px] rounded-sm h-[40px]"
-            onClick={handleNextPerson}
-          >
-            Next
-          </button>
-        ) : (
-          <button
-            className="bg-green-300 cursor-pointer w-[100px] rounded-sm h-[40px]"
-            onClick={handleGetMovie}
-          >
-            Get Movie
-          </button>
-        )}
-        {initialQuestionAnswers.numPeople > 1 && currentPerson > 0 && (
-          <button
-            className="bg-green-300 cursor-pointer w-[100px] rounded-sm h-[40px]"
-            onClick={handlePrevPerson}
-          >
-            Prev
-          </button>
-        )}
-      </div>
+      }
     </>
   );
 };

@@ -5,24 +5,28 @@ export default QuestionContext;
 
 export const QuestionContextProvider = ({ children }) => {
   const [initialQuestionAnswers, setInitialQuestionAnswers] = useState({
-    numPeople: '',
-    time: '',
+    numPeople: '2',
+    time: '2',
   });
 
   const [questionAnswers, setQuestionAnswers] = useState({
     0: {
-      favouriteMovie: '',
-      newOrClassic: '',
-      genre: '',
-      famousPerson: '',
+      favouriteMovie: 'spiderman',
+      newOrClassic: 'new',
+      genre: 'thriller',
+      famousPerson: 'tom holland',
     },
   });
+  
+  const [recommendations, setRecommendations] = useState([]);
 
   const value = {
     initialQuestionAnswers,
     setInitialQuestionAnswers,
     questionAnswers,
     setQuestionAnswers,
+    recommendations,
+    setRecommendations
   };
 
   return (
