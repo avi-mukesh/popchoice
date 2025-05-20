@@ -4,7 +4,9 @@ import { useQuestionContext } from "../../context/QuestionContext";
 const Results = () => {
   const { recommendations } = useQuestionContext();
   let movieTitles = recommendations.map(recommendations => recommendations.split('***')[0].trim());
+  let recommendationTexts = recommendations.map(recommendations => recommendations.split('***')[1].trim());
   const [posterUrls, setPosterUrls] = useState([]);
+  const [recommendationIndex, setRecommendationIndex] = useState(0);
 
   useEffect(() => {
     const options = {
@@ -36,13 +38,19 @@ const Results = () => {
       
       return Promise.resolve(posters);
     }
-    console.log(movieTitles);
-    fetchMoviePosters().then(res => console.log(res));
+    console.log(movieTitles.length);
+    fetchMoviePosters().then(res => setPosterUrls(res));
   }, []) 
 
-      //TODO use api to query for movie title
-
-  return <h1>Results</h1>;
+  return (
+    <div className="p-5 flex flex-col items-center gap-2 max-w-[80%] mx-auto">
+      <p className="text-4xl text-slate-400">{movieTitles[recommendationIndex]}</p>
+      <img className="w-[300px]" src={posterUrls[recommendationIndex]}/>
+      <p className="text-lg text-slate-300">{recommendationTexts[recommendationIndex]}</p>
+      {recommendationIndex > 0 && <button className="bg-green-300 cursor-pointer w-[100px] rounded-sm h-[40px]" onClick={() => setRecommendationIndex(prev=>prev-1)}>Prev Movie</button>}
+      {recommendationIndex < recommendations.length-1 && <button className="bg-green-300 cursor-pointer w-[100px] rounded-sm h-[40px]" onClick={() => setRecommendationIndex(prev=>prev+1)}>Next Movie</button>}
+    </div>
+  );
 };
 
 export default Results;

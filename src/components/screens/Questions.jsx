@@ -6,10 +6,10 @@ import { useNavigate } from 'react-router';
 
 
 const blank = {
-  favouriteMovie: 'spiderman',
-  newOrClassic: 'new',
-  genre: 'action',
-  famousPerson: 'tom hanks',
+  favouriteMovie: '',
+  newOrClassic: '',
+  genre: '',
+  famousPerson: '',
 };
 
 const Questions = () => {
@@ -45,7 +45,7 @@ const Questions = () => {
       ...questionAnswers,
       [prevPerson]: formData
     }
-    console.log('newquestionanswers', newQuestionAnswers)
+
     setQuestionAnswers(newQuestionAnswers);
     
     let newFormData = blank;
@@ -62,7 +62,6 @@ const Questions = () => {
     let input = '';
 
     for(let key in answers) {
-      console.log('key', key=='null');
       if(key) {
         let personAnswer = answers[key];
 
@@ -75,11 +74,8 @@ The famous film person they would love to be stranded on an island with is ${per
       }
     }
     let query_embedding = await createEmbedding(input);
-    console.log(query_embedding);
     let matches = await findNearestMatches(query_embedding);
-
-    const userMessage = `Context: ${matches}.\nWhat people like: ${input}. They have ${initialQuestionAnswers.time} hours to spare`;
-    console.log(userMessage);
+    const userMessage = `Context: ${matches}.\nWhat people like: ${input}.\n How much time these people have to spare: ${initialQuestionAnswers.time} hours.`;
 
     let res = await openai.chat.completions.create({
         model:'gpt-4.1', 
@@ -87,9 +83,15 @@ The famous film person they would love to be stranded on an island with is ${per
         messages: [
           {
             role: 'system',
-            content: "You are an enthusiastic movie expert who loves recommending movies to people. You will be given two pieces of information - some context about movies and the answers from a few different people about what their movie preferences are. Your main job is to recommend between 2 and 4 movies using the provided context. For each movie, give a short reason why you recommend it gien the people preferences and the amount of time they have. Return the recommendations in the order of most to least recommended. Separate each recommendation by a new line and separate the movie title from it's recommendation by ***. Do not write an introduction or a conclusion."
+            content: `You are an enthusiastic movie expert who loves recommending movies to people. 
+            You will be given two pieces of information - some context about movies and the answers from a few different people about what their movie preferences are.
+            Your main job is to recommend between 2 and 4 movies using the provided context.
+            For each movie, give a short reason why you recommend it gien the people preferences and the amount of time they have.
+            Return the recommendations in the order of most to least recommended.
+            Separate each recommendation by a new line and separate the movie title from it's recommendation by ***.
+            Do not write an introduction or a conclusion.
+            Do not refer to the people individually.`
           },
-          // TODO: give a sample answer so it knows how to respond
           {
             role: 'user',
             content: userMessage

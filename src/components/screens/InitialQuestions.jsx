@@ -1,5 +1,5 @@
 import Logo from '../Logo';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useQuestionContext } from '../../context/QuestionContext';
 
