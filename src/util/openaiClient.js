@@ -9,15 +9,17 @@ export const openai = new OpenAI({
 export const createEmbedding = async (text) => {
     const response = await openai.embeddings.create({
         model: 'text-embedding-3-small',
-        input: text
+        input: text,
+        encoding_format: 'float'
     })
     return response.data[0].embedding;
 }
 
 export const findNearestMatches = async (embedding) => {
-    const response = await supabase.rpc('match_movie_data', {
+    const {data} = await supabase.rpc('match_movie_data', {
         query_embedding: embedding,
         match_threshold: 0.3,
         match_count: 3
     });
+    return data.map(obj => obj.content).join('\n');
 }

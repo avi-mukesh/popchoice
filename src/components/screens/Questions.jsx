@@ -68,8 +68,30 @@ The famous film person they would love to be stranded on an island with is ${per
         input += personInput;
       }
     }
-    let query_embedding = createEmbedding(input);
-    let matches = findNearestMatches(query_embedding);
+    let query_embedding = await createEmbedding(input);
+    console.log(query_embedding);
+    let matches = await findNearestMatches(query_embedding);
+
+    const userMessage = `Context: ${matches}.\nWhat people like: ${input}`;
+    console.log(userMessage);
+
+    let res = await openai.chat.completions.create({
+        model:'gpt-4.1', 
+        temperature: 0.65,
+        messages: [
+          {
+            role: 'system',
+            content: "You are an enthusiastic movie expert who loves recommending movies to people. You will be given two pieces of information - some context about movies and the answers from a few different people about what their movie preferences are. Your main job is to recommend between 2 and 4 movies using the provided context. For each movie, give a short reason why you recommend it. Return the recommendations in the order of most to least recommended. Separate each recommendation by a new line. Do not write an introduction or a conclusion."
+          },
+          {
+            role: 'user',
+            content: userMessage
+          }
+        ]
+      })
+      let responseContent = res.choices[0].message.content;
+
+      console.log(responseContent.split('\n\n'));
 
     //TODO: create context to store matched movies and then navigate to the results
     
