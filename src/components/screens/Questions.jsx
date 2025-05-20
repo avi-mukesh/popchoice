@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useQuestionContext } from '../../context/QuestionContext';
 import {openai, createEmbedding, findNearestMatches } from '../../util/openaiClient';
 import { useNavigate } from 'react-router';
+import Radio from '../Radio';
 
 
 const blank = {
@@ -121,30 +122,29 @@ The famous film person they would love to be stranded on an island with is ${per
               className="bg-blue-300 text-blue-900 p-1 text-center outline-none border-none rounded-sm w-full"
               name="favouriteMovie"
               value={formData.favouriteMovie}
+              maxLength={50}
               onChange={handleChange}
             />
           </div>
-          <div className="flex flex-col items-start">
-            <label className="text-slate-100">
+          <div className="flex flex-col items-center">
+            <p className="text-slate-100">
               Are you in the mood for something new or classic?
-            </label>
-            <input
-              className="bg-blue-300 text-blue-900 p-1 text-center outline-none border-none rounded-sm w-full"
-              name="newOrClassic"
-              value={formData.newOrClassic}
-              onChange={handleChange}
-            />
+            </p>
+            <div className='flex gap-4'>
+              <Radio name='newOrClassic' value='new' selected={formData.newOrClassic} handleChange={handleChange}/>
+              <Radio name='newOrClassic' value='classic' selected={formData.newOrClassic} handleChange={handleChange}/>
+            </div>
           </div>
           <div className="flex flex-col items-start">
             <label className="text-slate-100">
               What genre are you in the mood for?
             </label>
-            <input
-              className="bg-blue-300 text-blue-900 p-1 text-center outline-none border-none rounded-sm w-full"
-              name="genre"
-              value={formData.genre}
-              onChange={handleChange}
-            />
+            <div className='flex gap-4'>
+              <Radio name='genre' value='fun' selected={formData.genre} handleChange={handleChange}/>
+              <Radio name='genre' value='scary' selected={formData.genre} handleChange={handleChange}/>
+              <Radio name='genre' value='inspiring' selected={formData.genre} handleChange={handleChange}/>
+              <Radio name='genre' value='serious' selected={formData.genre} handleChange={handleChange}/>
+            </div>
           </div>
           <div className="flex flex-col items-start">
             <label className="text-slate-100">
