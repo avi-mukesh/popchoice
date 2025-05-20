@@ -72,7 +72,7 @@ The famous film person they would love to be stranded on an island with is ${per
     console.log(query_embedding);
     let matches = await findNearestMatches(query_embedding);
 
-    const userMessage = `Context: ${matches}.\nWhat people like: ${input}`;
+    const userMessage = `Context: ${matches}.\nWhat people like: ${input}. They have ${initialQuestionAnswers.time} hours to spare`;
     console.log(userMessage);
 
     let res = await openai.chat.completions.create({
@@ -81,8 +81,9 @@ The famous film person they would love to be stranded on an island with is ${per
         messages: [
           {
             role: 'system',
-            content: "You are an enthusiastic movie expert who loves recommending movies to people. You will be given two pieces of information - some context about movies and the answers from a few different people about what their movie preferences are. Your main job is to recommend between 2 and 4 movies using the provided context. For each movie, give a short reason why you recommend it. Return the recommendations in the order of most to least recommended. Separate each recommendation by a new line. Do not write an introduction or a conclusion."
+            content: "You are an enthusiastic movie expert who loves recommending movies to people. You will be given two pieces of information - some context about movies and the answers from a few different people about what their movie preferences are. Your main job is to recommend between 2 and 4 movies using the provided context. For each movie, give a short reason why you recommend it gien the people preferences and the amount of time they have. Return the recommendations in the order of most to least recommended. Separate each recommendation by a new line. Do not write an introduction or a conclusion."
           },
+          // TODO: give a sample answer so it knows how to respond
           {
             role: 'user',
             content: userMessage
@@ -90,6 +91,9 @@ The famous film person they would love to be stranded on an island with is ${per
         ]
       })
       let responseContent = res.choices[0].message.content;
+      let recommendations = responseContent.split('\n\n');
+      let movieTitles = recommendations.map(recommendations => recommendations.split('-'))
+      //TODO use api to query for movie title
 
       console.log(responseContent.split('\n\n'));
 
